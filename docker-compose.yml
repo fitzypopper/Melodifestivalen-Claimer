@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  melo-mitm-claimer:
+    build: .
+    container_name: melo-mitm-claimer
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./data:/data
+    environment:
+      - TOKEN_FILE=/data/token.json
+      - STATS_FILE=/data/stats.json
+      - LOG_FILE=/data/claimer.log
+      - ALBUMS=1..25
+      - DELAY=0.5
+      # - EMAIL=your@email.com  # optional: auto-login on first start
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "python3", "/app/claim_daily.py", "--token-file", "/data/token.json", "--check", "--album", "1"]
+      interval: 30m
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  data:
+    driver: local

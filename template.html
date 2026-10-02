@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melodifestivalen · Kortsamlaren</title>
+<style>
+:root {
+  --bg: #0b0b10;
+  --bg2: #111119;
+  --panel: #15151f;
+  --panel2: #1c1c29;
+  --border: #262636;
+  --text: #f3f2f7;
+  --muted: #9a97ab;
+  --accent: #ff2d9b;
+  --accent2: #a02bff;
+  --grad: linear-gradient(100deg, #ff2d9b, #a02bff);
+  --ok: #35d07f;
+  --warn: #ffb020;
+  --err: #ff5470;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 1rem 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(900px 380px at 12% -8%, rgba(255,45,155,.16), transparent 60%),
+    radial-gradient(760px 340px at 92% -6%, rgba(160,43,255,.14), transparent 60%),
+    var(--bg);
+  color: var(--text); line-height: 1.5;
+}
+.wrap { max-width: 1120px; margin: 0 auto; }
+
+/* ---------------- header / brand ---------------- */
+header {
+  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+  padding: 1rem 0 .9rem; margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(11,11,16,.88); backdrop-filter: blur(10px);
+}
+.brand { display: flex; align-items: center; gap: .65rem; }
+.logo {
+  width: 40px; height: 40px; border-radius: 12px; background: var(--grad);
+  display: grid; place-items: center; font-weight: 800; font-size: 1.35rem;
+  color: #fff; box-shadow: 0 6px 22px rgba(255,45,155,.35); letter-spacing: -.05em;
+}
+.brand .titles { line-height: 1.15; }
+.brand .sup { font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.brand h1 { margin: 0; font-size: 1.12rem; font-weight: 750; letter-spacing: -.01em; }
+.brand h1 span { font-weight: 400; color: var(--muted); }
+nav.tabs { display: flex; gap: .25rem; background: var(--panel); border: 1px solid var(--border); border-radius: 11px; padding: .22rem; }
+.tab {
+  background: transparent; border: none; color: var(--muted);
+  padding: .4rem .95rem; border-radius: 8px; font-size: .88rem; cursor: pointer; font-weight: 600;
+}
+.tab:hover { color: var(--text); }
+.tab.active { background: var(--grad); color: #fff; box-shadow: 0 3px 12px rgba(255,45,155,.3); }
+.clock { margin-left: auto; color: var(--muted); font-family: var(--mono); font-size: .8rem; text-align: right; }
+.clock b { color: var(--text); font-weight: 600; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fade .18s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+/* ---------------- building blocks ---------------- */
+.card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1rem; margin-bottom: 1rem;
+  box-shadow: 0 1px 0 rgba(255,255,255,.02) inset;
+}
+.card h2 {
+  margin: 0 0 .8rem; font-size: .74rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .16em;
+}
+.card h2 .hint { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.card h3 { margin: .9rem 0 .4rem; font-size: .8rem; color: var(--muted); font-weight: 650; letter-spacing: .04em; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid2 > .card { margin-bottom: 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .7rem; margin-bottom: 1rem; }
+.tile {
+  background: linear-gradient(180deg, var(--panel), var(--panel2));
+  border: 1px solid var(--border); border-radius: 14px; padding: .85rem 1rem; position: relative; overflow: hidden;
+}
+.tile::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--grad); }
+.tile .num { font-size: 1.6rem; font-weight: 750; font-family: var(--mono); letter-spacing: -.03em; }
+.tile .lbl { color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; margin-top: .1rem; }
+.ok { color: var(--ok); } .warn { color: var(--warn); } .err { color: var(--err); } .muted { color: var(--muted); }
+.pill { display: inline-block; padding: .06rem .6rem; border-radius: 999px; font-size: .76rem; border: 1px solid var(--border); font-family: var(--mono); }
+.pill.ok { border-color: var(--ok); color: var(--ok); }
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.pill.err { border-color: var(--err); color: var(--err); }
+button {
+  background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  padding: .48rem .9rem; border-radius: 9px; cursor: pointer; font-size: .87rem; font-weight: 600;
+}
+button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.primary { background: var(--grad); border-color: transparent; color: #fff; box-shadow: 0 4px 14px rgba(255,45,155,.28); }
+button.primary:hover:not(:disabled) { color: #fff; filter: brightness(1.08); }
+button.ghost { background: transparent; }
+input, select {
+  background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  padding: .45rem .65rem; border-radius: 9px; font-size: .87rem;
+}
+input:focus, select:focus, button:focus-visible { outline: none; border-color: var(--accent); }
+label { font-size: .86rem; color: var(--muted); }
+.row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: .6rem; }
+.row:last-child { margin-bottom: 0; }
+.hint { color: var(--muted); font-size: .8rem; }
+.mono { font-family: var(--mono); }
+.bar { background: var(--panel2); border: 1px solid var(--border); border-radius: 999px; height: 9px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--grad); transition: width .4s ease; }
+.bar.tok > i { background: linear-gradient(90deg, #1f6feb, #58a6ff); }
+.chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+.chip {
+  min-width: 2.4rem; text-align: center; padding: .3rem .4rem; font-family: var(--mono);
+  font-size: .8rem; background: var(--panel2); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; color: var(--text); position: relative;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.claimed { border-color: rgba(53,208,127,.6); color: var(--ok); background: rgba(53,208,127,.08); }
+.chip.busy { opacity: .45; pointer-events: none; }
+pre {
+  background: var(--panel2); border: 1px solid var(--border); border-radius: 10px;
+  padding: .65rem; overflow: auto; max-height: 240px; font-family: var(--mono);
+  font-size: .78rem; margin: .6rem 0 0; white-space: pre-wrap; word-break: break-word;
+}
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+th, td { padding: .42rem .5rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 650; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; }
+#log { max-height: 62vh; overflow: auto; font-family: var(--mono); font-size: .78rem; }
+.log-line { padding: .14rem 0; border-bottom: 1px solid rgba(38,38,54,.5); word-break: break-word; }
+.log-line .ts { color: var(--muted); }
+.lv-info { color: var(--ok); } .lv-warn { color: var(--warn); } .lv-error { color: var(--err); }
+#toasts { position: fixed; right: 1rem; bottom: 1rem; display: flex; flex-direction: column; gap: .5rem; z-index: 80; }
+.toast {
+  background: var(--panel2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  padding: .6rem .9rem; border-radius: 10px; font-size: .86rem; max-width: 340px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.55); animation: slide .2s ease;
+}
+.toast.ok { border-left-color: var(--ok); } .toast.err { border-left-color: var(--err); }
+@keyframes slide { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+.newbadge { color: var(--ok); font-family: var(--mono); font-size: .75rem; }
+
+/* ---------------- gallery ---------------- */
+.album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: .75rem; }
+.album {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 13px;
+  overflow: hidden; cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.album:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,.4); }
+.album img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #000; }
+.album .meta { padding: .55rem .65rem .7rem; }
+.album .nm { font-size: .82rem; font-weight: 650; line-height: 1.25; height: 2.05em; overflow: hidden; }
+.album .ct { font-size: .74rem; color: var(--muted); font-family: var(--mono); margin-top: .3rem; display: flex; justify-content: space-between; }
+.album .bar { margin-top: .35rem; height: 7px; }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: .6rem; }
+.ccard {
+  position: relative; border-radius: 10px; overflow: hidden; cursor: pointer;
+  border: 1px solid var(--border); background: var(--panel2); transition: border-color .15s, transform .15s;
+}
+.ccard:hover { border-color: var(--accent); transform: translateY(-2px); }
+.ccard img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.ccard.missing img { opacity: .16; filter: grayscale(1); }
+.ccard .cn { padding: .28rem .35rem .3rem; background: var(--panel2); }
+.ccard .cn .nm { display: block; font-size: .72rem; font-weight: 650; line-height: 1.2; height: 2.25em; overflow: hidden; }
+.ccard .cn .sg { display: block; font-size: .66rem; color: var(--muted); line-height: 1.2; height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ccard.missing .cn .nm { color: var(--muted); font-weight: 500; }
+.ccard .rbar { display: block; height: 3px; background: var(--muted); }
+.ccard .cnt {
+  position: absolute; top: 4px; right: 4px; background: rgba(53,208,127,.94); color: #04120b;
+  font-family: var(--mono); font-size: .66rem; font-weight: 700; padding: .04rem .3rem; border-radius: 6px;
+}
+.ccard.flash { animation: flash 1.4s ease 2; }
+@keyframes flash { 0%,100% { box-shadow: 0 0 0 0 rgba(255,45,155,0); } 50% { box-shadow: 0 0 0 4px rgba(255,45,155,.85); } }
+.user-avatar { margin-left: 1rem; cursor: pointer; }
+.user-avatar img { transition: transform .2s; }
+.user-avatar:hover img { transform: scale(1.1); }
+
+.backrow { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-bottom: .75rem; }
+.rarity-legend { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .7rem; }
+.rchip {
+  display: flex; align-items: center; gap: .4rem; background: var(--panel2);
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem; font-size: .74rem;
+}
+.rchip .dot { width: 9px; height: 9px; border-radius: 50%; }
+.rchip .n { font-family: var(--mono); color: var(--muted); }
+.rchip .mini { width: 42px; height: 5px; background: #0e0e16; border-radius: 999px; overflow: hidden; }
+.rchip .mini > i { display: block; height: 100%; }
+
+/* search / duplicates lists */
+.list { display: flex; flex-direction: column; gap: .4rem; max-height: 55vh; overflow: auto; }
+.lrow {
+  display: flex; gap: .7rem; align-items: center; background: var(--panel2);
+  border: 1px solid var(--border); border-radius: 10px; padding: .4rem .55rem; cursor: pointer;
+}
+.lrow:hover { border-color: var(--accent); }
+.lrow img { width: 42px; height: 42px; border-radius: 7px; object-fit: cover; background: #000; }
+.lrow .t { flex: 1; min-width: 0; }
+.lrow .t b { font-size: .85rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow .t span { font-size: .75rem; color: var(--muted); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow .own { font-size: .74rem; font-family: var(--mono); padding: .1rem .5rem; border-radius: 999px; border: 1px solid var(--border); }
+.lrow .own.yes { color: var(--ok); border-color: rgba(53,208,127,.5); }
+.lrow .own.no { color: var(--muted); }
+.lrow .rdot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+/* modal */
+.modal { position: fixed; inset: 0; background: rgba(5,5,10,.78); backdrop-filter: blur(4px); z-index: 70; display: none; align-items: center; justify-content: center; padding: 1rem; }
+.modal.open { display: flex; }
+.mbox {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+  width: min(760px, 100%); max-height: 90vh; overflow: auto; display: flex; gap: 1rem; padding: 1rem;
+  box-shadow: 0 30px 70px rgba(0,0,0,.6);
+}
+.mbox img { width: 240px; height: 240px; border-radius: 12px; object-fit: cover; background: #000; flex: none; }
+.mbox .mi { min-width: 0; }
+.mbox .mi h3 { margin: 0 0 .15rem; font-size: 1.15rem; line-height: 1.2; }
+.mbox .mi .song { color: var(--accent); font-weight: 650; font-size: .95rem; margin-bottom: .55rem; }
+.mbox .tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .6rem; }
+.mbox .tag { font-size: .72rem; border: 1px solid var(--border); border-radius: 999px; padding: .1rem .55rem; font-family: var(--mono); color: var(--muted); }
+.mbox .info { font-size: .85rem; color: #cfcddb; margin: .5rem 0; }
+.mbox .kv { display: grid; grid-template-columns: auto 1fr; gap: .15rem .7rem; font-size: .8rem; margin-top: .5rem; }
+.mbox .kv dt { color: var(--muted); text-transform: capitalize; }
+.mbox .kv dd { margin: 0; }
+.mclose { position: sticky; top: 0; float: right; margin-left: auto; }
+
+@media (max-width: 760px) {
+  .grid2 { grid-template-columns: 1fr; }
+  .mbox { flex-direction: column; }
+  .mbox img { width: 100%; height: auto; aspect-ratio: 1; }
+}
+@media (max-width: 620px) {
+  .tiles { grid-template-columns: repeat(2, 1fr); }
+  .brand h1 { font-size: 1rem; }
+  .clock { width: 100%; text-align: left; margin-left: 0; }
+  header { gap: .6rem; }
+  nav.tabs { order: 3; width: 100%; }
+  .tab { flex: 1; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <div class="logo">M</div>
+    <div class="titles">
+      <div class="sup">Melodifestivalen</div>
+      <h1>Kortsamlaren <span>· auto-claimer</span></h1>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="overview">Översikt</button>
+    <button class="tab" data-tab="gallery">Galleri</button>
+    <button class="tab" data-tab="log">Logg</button>
+  </nav>
+  <div class="clock"><b id="utc-clock"></b><br>nästa fönster om <b id="window-cd"></b></div>
+  <div id="user-avatar" class="user-avatar" style="display:none" title="">
+    <img id="avatar-img" src="" alt="" width="32" height="32" style="border-radius:50%;border:2px solid var(--accent)">
+  </div>
+</header>
+
+<!-- ============================ ÖVERSIKT ============================ -->
+<section id="tab-overview" class="tab-pane active">
+  <div class="tiles">
+    <div class="tile"><div class="num" id="t-cards">–</div><div class="lbl">Kort utdelade</div></div>
+    <div class="tile"><div class="num" id="t-claims">–</div><div class="lbl">Claim-körningar</div></div>
+    <div class="tile"><div class="num" id="t-unique">–</div><div class="lbl">Unika koder</div></div>
+    <div class="tile"><div class="num" id="t-owned">–</div><div class="lbl">I samlingen</div></div>
+    <div class="tile"><div class="num" id="t-albums">–</div><div class="lbl">Album täckta</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Session &amp; token</h2>
+    <div class="row" id="token-status">läser in…</div>
+    <div class="bar tok" style="margin:.1rem 0 .75rem"><i id="tok-bar" style="width:0%"></i></div>
+    <div class="row">
+      <button onclick="doRefreshToken()" id="btn-refresh">Uppdatera token nu</button>
+      <button class="ghost" onclick="copyToken()">Kopiera access-token</button>
+      <span class="hint">uppdateras automatiskt varje timme när &lt;2 h återstår</span>
+    </div>
+  </div>
+
+  <div class="card" id="rank-card" style="display:none">
+    <h2>Rank & dagliga uppdrag</h2>
+    <div class="row" id="rank-main">
+      <div style="flex:1;min-width:180px">
+        <div class="row" style="margin-bottom:.4rem">
+          <span class="pill ok" id="rank-level">–</span>
+          <span class="mono" id="rank-score">– poäng</span>
+          <span class="muted" id="rank-next">–</span>
+        </div>
+        <div class="bar" style="height:10px"><i id="rank-bar" style="width:0%"></i></div>
+        <div class="hint mono" id="rank-reward" style="margin-top:.4rem"></div>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <b class="hint">Dagliga uppdrag</b>
+        <div id="rank-dailies" class="row" style="margin-top:.3rem;gap:.4rem"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Claim</h2>
+    <div class="row">
+      <button class="primary" onclick="doClaimAll(false, this)">Claima alla album</button>
+      <button onclick="showStatus()">Visa status</button>
+      <span class="hint">statusen är lokal (inget API-anrop) · eller tryck på ett album nedan</span>
+    </div>
+    <div class="chips" id="album-chips" title="grön = redan claimad det här fönstret"></div>
+    <pre id="action-output" style="display:none"></pre>
+  </div>
+
+  <div class="grid2" style="margin-bottom:1rem">
+    <div class="card">
+      <h2>Senaste claims</h2>
+      <div id="recent-claims" class="hint">inga ännu</div>
+    </div>
+    <div class="card">
+      <h2>Inloggning <span class="hint">— behövs bara när tokenen går ut</span></h2>
+      <div class="row">
+        <input type="email" id="email-input" placeholder="din@epost.se" style="min-width:180px" onkeydown="if(event.key==='Enter')requestLoginCode()">
+        <button id="request-code-btn" onclick="requestLoginCode()">1. Begär inloggningskod</button>
+      </div>
+      <div class="row" id="login-code-step" style="display:none">
+        <label>2. ange de 6 siffrorna från e-postmeddelandet</label>
+        <input type="text" id="code-input" placeholder="123456" maxlength="6" style="width:120px" onkeydown="if(event.key==='Enter')submitLoginCode(this)">
+        <button class="primary" onclick="submitLoginCode(this)">Skicka</button>
+        <button onclick="cancelLogin()">Avbryt</button>
+      </div>
+      <div class="hint">Vi frågar bara efter kod när det 4-timmars långa access-tokenet tar slut — refresh-tokenen håller dig inloggad annars.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Statistik per album</h2>
+    <div id="stats-detail" class="muted">läser in…</div>
+  </div>
+</section>
+
+<!-- ============================ GALLERI ============================ -->
+<section id="tab-gallery" class="tab-pane">
+  <div class="card">
+    <h2>Samlingen</h2>
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1;min-width:230px">
+        <div class="row" style="margin-bottom:.35rem">
+          <b id="col-nums" class="mono">–</b>
+          <span class="hint" id="col-err"></span>
+        </div>
+        <div class="bar"><i id="col-bar" style="width:0%"></i></div>
+      </div>
+      <button onclick="refreshCollection(true)">Uppdatera</button>
+      <button onclick="copyMissing()">Kopiera saknade</button>
+      <button onclick="toggleDups()" id="btn-dups" data-base="Dubbletter">Dubbletter</button>
+    </div>
+    <div class="rarity-legend" id="rarity-legend" style="display:none"></div>
+  </div>
+
+  <div class="card" id="searchcard" style="display:none">
+    <h2 id="search-title">Sökresultat</h2>
+    <div class="list" id="search-list"></div>
+  </div>
+
+  <div class="card" id="dupscard" style="display:none">
+    <h2>Dubbletter <span class="hint">— kort du har mer än en gång (bra att byta bort)</span></h2>
+    <div class="list" id="dups-list"></div>
+  </div>
+
+  <div class="row" style="margin-bottom:.7rem">
+    <input type="search" id="gal-search" placeholder="Sök kort, artist eller låt…" style="flex:1;min-width:190px" oninput="onSearch()">
+    <select id="gal-sort" onchange="renderAlbumGrid()">
+      <option value="id">Album i ordning</option>
+      <option value="asc">Lägst slutförst</option>
+      <option value="desc">Högst slutförst</option>
+      <option value="name">Namn (A–Ö)</option>
+    </select>
+  </div>
+
+  <div class="album-grid" id="album-grid"><div class="hint">laddar album…</div></div>
+
+  <div class="card" id="album-detail" style="display:none">
+    <div class="backrow">
+      <button onclick="closeAlbum()">&larr; Alla album</button>
+      <h2 style="margin:0" id="ad-name"></h2>
+      <span class="hint mono" id="ad-count"></span>
+      <span style="flex:1"></span>
+      <select id="ad-sort" onchange="renderAlbumCards()" title="sortering">
+        <option value="num">Kortnummer</option>
+        <option value="rarity">Sällsynthet</option>
+        <option value="name">Namn (A–Ö)</option>
+        <option value="owned">Ägda först</option>
+      </select>
+      <select id="ad-filter" onchange="renderAlbumCards()" title="filter">
+        <option value="all">Alla kort</option>
+        <option value="missing">Saknas</option>
+        <option value="owned">Ägs</option>
+        <option value="dup">Dubbletter</option>
+      </select>
+    </div>
+    <div class="rarity-legend" id="ad-rarity" style="margin-bottom:.7rem"></div>
+    <div class="card-grid" id="ad-grid"></div>
+  </div>
+</section>
+
+<!-- ============================ LOGG ============================ -->
+<section id="tab-log" class="tab-pane">
+  <div class="card">
+    <h2>Logg</h2>
+    <div class="row">
+      <button onclick="refreshLog()">Uppdatera</button>
+      <label><input type="checkbox" id="log-autoscroll" checked> autoscroll</label>
+      <select id="log-level" onchange="renderLog()">
+        <option value="">alla nivåer</option>
+        <option value="info">info</option>
+        <option value="warn">warn</option>
+        <option value="error">error</option>
+      </select>
+      <input type="search" id="log-filter" placeholder="filtrera…" oninput="renderLog()" style="flex:1;min-width:120px">
+    </div>
+    <div id="log"></div>
+    <div class="hint" style="margin-top:.5rem">Webb-UI:ns händelser + de timvisa claim-cykeln. Rå utdata finns också i <span class="mono">docker logs melo-mitm-claimer</span>.</div>
+  </div>
+</section>
+</div>
+
+<div id="toasts"></div>
+
+<!-- ============================ KORT-MODAL ============================ -->
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="mbox">
+    <button class="ghost mclose" onclick="closeModal()" style="padding:.2rem .55rem">✕</button>
+    <img id="m-img" src="" alt="">
+    <div class="mi">
+      <h3 id="m-title"></h3>
+      <div class="song" id="m-song"></div>
+      <div class="tags" id="m-tags"></div>
+      <div id="m-own" style="margin-bottom:.4rem"></div>
+      <div class="info" id="m-info"></div>
+      <dl class="kv" id="m-kv"></dl>
+      <div class="hint mono" id="m-code" style="margin-top:.7rem"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentLoginSession = null;
+let lastToken = null;
+let rawLogs = [];
+let perAlbum = {};
+let collection = null;
+let allCards = null;          // /api/cards payload (names, rarity, owned)
+let currentAlbum = null;
+let albumCards = [];
+let dupRows = [];
+
+const RARITY_COLORS = {
+  'Mycket vanligt': '#8b949e',
+  'Vanligt': '#35d07f',
+  'Ovanligt': '#58a6ff',
+  'Mycket ovanligt': '#b392f0',
+  'Sällsynt': '#ff9f43',
+  'Oerhört sällsynt': '#ffd166',
+};
+const rc = r => RARITY_COLORS[r] || '#8b949e';
+
+/* ------------------------------ helpers ------------------------------ */
+async function fetchJSON(url, options = {}) {
+  const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } });
+  return res.json();
+}
+
+function toast(msg, cls = '') {
+  const box = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast ' + cls;
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+function fmtDur(secs) {
+  if (secs < 0) secs = 0;
+  const h = Math.floor(secs / 3600), m = Math.floor(secs % 3600 / 60), s = Math.floor(secs % 60);
+  return (h ? h + 'h ' : '') + m + ' min ' + s + ' s';
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function shortTs(ts) { return (ts || '').replace('T', ' ').substr(0, 19); }
+
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+/* ------------------------------ flikar ------------------------------ */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + btn.dataset.tab));
+    if (btn.dataset.tab === 'gallery' && !collection) refreshCollection();
+    if (btn.dataset.tab === 'log') refreshLog();
+    history.replaceState(null, '', '#' + btn.dataset.tab);
+  };
+});
+if (location.hash) {
+  const t = document.querySelector(`.tab[data-tab="${location.hash.slice(1)}"]`);
+  if (t) t.click();
+}
+
+/* ------------------------------ klocka ------------------------------ */
+function tickClock() {
+  document.getElementById('utc-clock').textContent = new Date().toISOString().substr(11, 8) + ' UTC';
+  const next = Math.ceil(Date.now() / 3600000) * 3600000;
+  document.getElementById('window-cd').textContent = fmtDur((next - Date.now()) / 1000);
+}
+
+/* ------------------------------ token ------------------------------ */
+async function refreshToken() {
+  const data = await fetchJSON('/api/token');
+  lastToken = data;
+  const div = document.getElementById('token-status');
+  const bar = document.getElementById('tok-bar');
+  if (data.has_token) {
+    const left = data.exp - Date.now() / 1000;
+    const cls = left > 300 ? 'ok' : 'warn';
+    const when = new Date(data.exp * 1000).toISOString().substr(11, 8) + ' UTC';
+    const pct = Math.max(0, Math.min(100, 100 * left / 14400));
+    bar.style.width = pct + '%';
+    div.innerHTML = `<span class="pill ${cls}">${left > 0 ? 'giltig' : 'GÅTT UT'}</span>` +
+      `<span>giltig i <b>${fmtDur(left)}</b> (till ${when})</span>` +
+      `<span class="muted">${esc(data.sub || '?')}${data.email ? ' · ' + esc(data.email) : ''}</span>`;
+  } else {
+    bar.style.width = '0%';
+    div.innerHTML = '<span class="pill err">ingen token</span><span class="muted">logga in nedan</span>';
+  }
+}
+
+async function doRefreshToken() {
+  const btn = document.getElementById('btn-refresh');
+  btn.disabled = true;
+  const res = await fetchJSON('/api/refresh', { method: 'POST' });
+  btn.disabled = false;
+  toast(res.ok ? 'Token uppdaterad' : 'Uppdatering misslyckades: ' + (res.error || 'okänt fel'), res.ok ? 'ok' : 'err');
+  await refreshToken();
+}
+
+async function copyToken() {
+  if (!lastToken || !lastToken.has_token) return toast('Ingen token att kopiera', 'err');
+  const data = await fetchJSON('/api/token/raw');
+  try { await navigator.clipboard.writeText(data.accessToken || ''); toast('Access-token kopierat', 'ok'); }
+  catch (e) { toast('Kopiering misslyckades', 'err'); }
+}
+
+/* ------------------------------ logg ------------------------------ */
+async function refreshLog() {
+  const data = await fetchJSON('/api/log');
+  rawLogs = data.logs || [];
+  renderLog();
+}
+
+function renderLog() {
+  const lvl = document.getElementById('log-level').value;
+  const q = document.getElementById('log-filter').value.toLowerCase();
+  const box = document.getElementById('log');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 30;
+  const rows = rawLogs.filter(l => (!lvl || l.level === lvl) && (!q || (l.msg || '').toLowerCase().includes(q)));
+  box.innerHTML = rows.map(l =>
+    `<div class="log-line"><span class="ts">${shortTs(l.ts)}</span> ` +
+    `<span class="lv-${l.level}">[${l.level.toUpperCase()}]</span> ${esc(l.msg)}</div>`
+  ).join('') || '<div class="hint">inga matchande rader</div>';
+  if (document.getElementById('log-autoscroll').checked && atBottom) box.scrollTop = box.scrollHeight;
+}
+
+/* ------------------------------ statistik ------------------------------ */
+async function refreshStats() {
+  const d = await fetchJSON('/api/stats');
+  document.getElementById('t-cards').textContent = d.total_cards || 0;
+  document.getElementById('t-claims').textContent = d.total_claims || 0;
+  document.getElementById('t-unique').textContent = (d.unique_codes || []).length;
+  const pa = d.per_album || {};
+  perAlbum = pa;
+  document.getElementById('t-albums').textContent = Object.keys(pa).length + '/25';
+
+  const names = {};
+  (collection ? collection.albums : []).forEach(a => names[a.id] = a);
+  const rows = Object.keys(pa).sort((a, b) => a - b).map(k => {
+    const v = pa[k];
+    const nm = names[k] ? names[k].short : '';
+    return `<tr><td class="mono">${k}</td><td>${esc(nm)}</td><td class="mono">${v.cards}</td>` +
+      `<td class="mono">${v.claims}</td><td class="mono muted">${shortTs(v.last)}</td></tr>`;
+  }).join('');
+  document.getElementById('stats-detail').innerHTML = rows
+    ? `<div class="tablewrap"><table><tr><th>#</th><th>Album</th><th>Utdelat</th><th>Körningar</th><th>Senast</th></tr>${rows}</table></div>`
+    : '<span class="hint">inga claims registrerade ännu</span>';
+
+  const hist = (d.history || []).slice(-8).reverse().map(h => {
+    const nw = h.new && h.new.length ? ` <span class="newbadge">+${h.new.length} nya</span>` : '';
+    return `<div class="log-line"><span class="ts">${shortTs(h.ts)}</span> album ${h.album}: ${h.n} kort${nw}</div>`;
+  }).join('');
+  document.getElementById('recent-claims').innerHTML = hist || '<span class="hint">inga ännu</span>';
+  updateChips();
+}
+
+/* ------------------------------ claim ------------------------------ */
+function buildChips() {
+  const box = document.getElementById('album-chips');
+  box.innerHTML = '';
+  for (let i = 1; i <= 25; i++) {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.id = 'chip-' + i;
+    b.textContent = i;
+    b.title = 'Claima album ' + i;
+    b.onclick = () => doClaim(i, false, b);
+    box.appendChild(b);
+  }
+}
+
+function claimedThisWindow(i) {
+  const info = perAlbum[String(i)];
+  if (!info || !info.last) return false;
+  const iso = /[zZ]|[+-]\d\d:?\d\d$/.test(info.last) ? info.last : info.last.replace(' ', 'T') + 'Z';
+  const t = Date.parse(iso);
+  return Number.isFinite(t) && t / 1000 >= Math.floor(Date.now() / 1000 / 3600) * 3600;
+}
+
+function updateChips() {
+  for (let i = 1; i <= 25; i++) {
+    const b = document.getElementById('chip-' + i);
+    if (!b) continue;
+    const now = claimedThisWindow(i);
+    b.classList.toggle('claimed', now);
+    const al = collection ? collection.albums.find(a => a.id === i) : null;
+    b.title = (al ? al.name + ' — ' : 'album ' + i + ' — ') + (now ? 'redan claimad det här fönstret' : 'claima');
+  }
+}
+
+function showOutput(data) {
+  const pre = document.getElementById('action-output');
+  const text = (data.stderr || '') + (data.stdout ? (data.stderr ? '\n' : '') + data.stdout : '');
+  pre.textContent = text || JSON.stringify(data, null, 2);
+  pre.style.display = 'block';
+  refreshStats();
+}
+
+async function doClaim(album, check, btn) {
+  if (btn) btn.classList.add('busy');
+  const res = await fetchJSON('/api/claim', { method: 'POST', body: JSON.stringify({ album: String(album), check }) });
+  if (btn) btn.classList.remove('busy');
+  showOutput(res);
+  const ok = res.exit_code === 0 || res.exit_code === 2;
+  toast(`album ${album}: ` + (ok ? (res.exit_code === 2 ? 'redan claimat det här fönstret' : 'claimat') : 'misslyckades'), ok ? 'ok' : 'err');
+  await refreshToken();
+  await refreshLog();
+}
+
+function showStatus() {
+  const pre = document.getElementById('action-output');
+  const now = Math.floor(Date.now() / 1000);
+  const ws = Math.floor(now / 3600) * 3600;
+  const we = ws + 3600;
+  const f = t => new Date(t * 1000).toISOString().substr(11, 5);
+  let done = [], open = [];
+  for (let i = 1; i <= 25; i++) (claimedThisWindow(i) ? done : open).push(i);
+  const lines = [];
+  lines.push(`fönster ${f(ws)}–${f(we)} UTC (om ${fmtDur(we - now)})`);
+  lines.push(`claimat det här fönstret: ${done.length}/25${open.length ? ' — väntar: ' + open.join(', ') : ''}`);
+  if (collection) {
+    const t = collection.totals;
+    lines.push(`samling: ${t.owned}/${t.cards} kort (${t.pct}%), ${t.cards - t.owned} saknas`);
+    const worst = collection.albums.slice().sort((a, b) => a.pct - b.pct).slice(0, 5);
+    lines.push('lägst slutförda: ' + worst.map(a => `${a.name} ${a.owned}/${a.total}`).join(' · '));
+  } else {
+    lines.push('samlingen: inte laddad ännu');
+  }
+  pre.textContent = lines.join('\n');
+  pre.style.display = 'block';
+}
+
+async function doClaimAll(check, btn) {
+  const old = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Claimar…';
+  const res = await fetchJSON('/api/claim-all', { method: 'POST', body: JSON.stringify({ check }) });
+  btn.disabled = false; btn.textContent = old;
+  showOutput(res);
+  const m = (res.stdout || '').match(/total cards claimed this run: (\d+)/);
+  toast(check ? 'Klart' : `Claimade ${m ? m[1] + ' kort' : 'klart'}`, res.exit_code === 0 ? 'ok' : 'err');
+  await refreshToken();
+  await refreshLog();
+}
+
+/* ------------------------------ inloggning ------------------------------ */
+async function requestLoginCode() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email) return toast('Fyll i din e-postadress först', 'err');
+  const btn = document.getElementById('request-code-btn');
+  btn.disabled = true; btn.textContent = 'Skickar…';
+  const res = await fetchJSON('/api/login/request-code', { method: 'POST', body: JSON.stringify({ email }) });
+  btn.disabled = false; btn.textContent = '1. Begär inloggningskod';
+  if (res.exit_code === 0 && res.session_id) {
+    currentLoginSession = res.session_id;
+    document.getElementById('login-code-step').style.display = 'flex';
+    btn.style.display = 'none';
+    document.getElementById('code-input').focus();
+    toast('Kod skickad — kolla din e-post', 'ok');
+  } else {
+    toast((res.stderr || 'begäran misslyckades').split('\n').pop(), 'err');
+    showOutput(res);
+  }
+}
+
+async function submitLoginCode(btn) {
+  const code = document.getElementById('code-input').value.trim();
+  if (!code) return toast('Ange de 6 siffrorna', 'err');
+  if (!currentLoginSession) return toast('Sessionen gick ut — begär en ny kod', 'err');
+  btn.disabled = true; btn.textContent = 'Skickar…';
+  const res = await fetchJSON('/api/login/submit-code', { method: 'POST', body: JSON.stringify({ session_id: currentLoginSession, code }) });
+  btn.disabled = false; btn.textContent = 'Skicka';
+  if (res.exit_code === 0) {
+    cancelLogin();
+    toast('Inloggad', 'ok');
+  } else {
+    toast((res.stderr || 'inloggning misslyckades').split('\n').pop(), 'err');
+  }
+  showOutput(res);
+  await refreshToken();
+  await refreshLog();
+}
+
+function cancelLogin() {
+  currentLoginSession = null;
+  document.getElementById('login-code-step').style.display = 'none';
+  document.getElementById('code-input').value = '';
+  document.getElementById('request-code-btn').style.display = 'inline-block';
+}
+
+/* ------------------------------ galleri ------------------------------ */
+async function refreshCollection(force = false) {
+  const grid = document.getElementById('album-grid');
+  if (!collection) grid.innerHTML = '<div class="hint">laddar album…</div>';
+  const d = await fetchJSON('/api/collection' + (force ? '?force=1' : ''));
+  collection = d;
+  const missing = d.totals.cards - d.totals.owned;
+  document.getElementById('col-nums').textContent = `${d.totals.owned} / ${d.totals.cards} kort · ${missing} saknas · ${d.totals.pct} %`;
+  document.getElementById('col-bar').style.width = d.totals.pct + '%';
+  document.getElementById('col-err').textContent = d.err ? '⚠ ' + d.err : '';
+  document.getElementById('t-owned').textContent = `${d.totals.owned}/${d.totals.cards}`;
+  renderAlbumGrid();
+  updateChips();
+  refreshStats();
+  loadCards();
+}
+
+async function loadCards(force = false) {
+  if (allCards && !force) return allCards;
+  allCards = await fetchJSON('/api/cards' + (force ? '?force=1' : ''));
+  const d = allCards.totals ? allCards.totals.dups : 0;
+  const b = document.getElementById('btn-dups');
+  if (b && b.dataset.base) b.textContent = `${b.dataset.base} (${d})`;
+  renderRarityLegend();
+  return allCards;
+}
+
+function renderRarityLegend() {
+  const box = document.getElementById('rarity-legend');
+  if (!allCards || !allCards.byRarity) return;
+  const order = allCards.rarityOrder || Object.keys(allCards.byRarity);
+  box.style.display = 'flex';
+  box.innerHTML = order.map(r => {
+    const v = allCards.byRarity[r] || { total: 0, owned: 0 };
+    const pct = v.total ? Math.round(100 * v.owned / v.total) : 0;
+    return `<span class="rchip" title="${esc(r)}: ${v.owned} av ${v.total}">
+      <span class="dot" style="background:${rc(r)}"></span>${esc(r)}
+      <span class="mini"><i style="width:${pct}%;background:${rc(r)}"></i></span>
+      <span class="n">${v.owned}/${v.total}</span></span>`;
+  }).join('');
+}
+
+function renderAlbumGrid() {
+  const sort = document.getElementById('gal-sort').value;
+  if (!collection) return;
+  let albums = collection.albums.slice();
+  if (sort === 'asc') albums.sort((a, b) => a.pct - b.pct);
+  else if (sort === 'desc') albums.sort((a, b) => b.pct - a.pct);
+  else if (sort === 'name') albums.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'sv'));
+  else albums.sort((a, b) => a.id - b.id);
+
+  document.getElementById('album-grid').innerHTML = albums.map(a => `
+    <div class="album" onclick="openAlbum(${a.id})">
+      <img src="${esc(a.cover)}" alt="" loading="lazy">
+      <div class="meta">
+        <div class="nm" title="${esc(a.name)}">${esc(a.name)}</div>
+        <div class="ct"><span>${a.owned}/${a.total}</span><span>${a.pct} %</span></div>
+        <div class="bar"><i style="width:${a.pct}%"></i></div>
+      </div>
+    </div>`).join('');
+}
+
+async function openAlbum(id, sort) {
+  const s = sort || document.getElementById('ad-sort').value;
+  const d = await fetchJSON('/api/collection/' + id + '?sort=' + encodeURIComponent(s));
+  if (d.error) return toast(d.error, 'err');
+  currentAlbum = d;
+  albumCards = d.cards;
+  document.getElementById('ad-name').textContent = d.album.name;
+  document.getElementById('ad-count').textContent = `${d.album.owned}/${d.album.total} ägda`;
+  document.getElementById('album-detail').style.display = 'block';
+  renderAlbumRarity();
+  renderAlbumCards();
+  document.getElementById('album-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeAlbum() {
+  currentAlbum = null;
+  document.getElementById('album-detail').style.display = 'none';
+}
+
+function renderAlbumRarity() {
+  const box = document.getElementById('ad-rarity');
+  const br = currentAlbum && currentAlbum.byRarity;
+  if (!br) { box.innerHTML = ''; box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  const order = (allCards && allCards.rarityOrder) || Object.keys(br);
+  const keys = order.filter(r => br[r]).concat(Object.keys(br).filter(r => !order.includes(r)));
+  box.innerHTML = keys.map(r => {
+    const v = br[r];
+    const pct = v.total ? Math.round(100 * v.owned / v.total) : 0;
+    return `<span class="rchip"><span class="dot" style="background:${rc(r)}"></span>${esc(r)}
+      <span class="mini"><i style="width:${pct}%;background:${rc(r)}"></i></span>
+      <span class="n">${v.owned}/${v.total}</span></span>`;
+  }).join('');
+}
+
+function currentView() {
+  const mode = document.getElementById('ad-sort').value;
+  const f = document.getElementById('ad-filter').value;
+  const cards = albumCards.filter(c =>
+    f === 'missing' ? c.have === 0 :
+    f === 'owned' ? c.have > 0 :
+    f === 'dup' ? c.have > 1 : true);
+  if (mode === 'name') cards.sort((a, b) => (a.title || '\uffff').localeCompare(b.title || '\uffff', 'sv'));
+  else if (mode === 'rarity') cards.sort((a, b) => (a.rkey - b.rkey) || ((a.num || 9999) - (b.num || 9999)));
+  else if (mode === 'owned') cards.sort((a, b) => (b.have - a.have) || ((a.num || 9999) - (b.num || 9999)));
+  else cards.sort((a, b) => ((a.num || 9999) - (b.num || 9999)) || a.code.localeCompare(b.code));
+  return cards;
+}
+
+function renderAlbumCards() {
+  if (!currentAlbum) return;
+  const cards = currentView();
+  document.getElementById('ad-grid').innerHTML = cards.map((c, i) => `
+    <div class="ccard ${c.have ? '' : 'missing'}" data-code="${esc(c.code)}" data-idx="${i}"
+         title="${esc(c.title || c.code)}${c.song ? ' — ' + esc(c.song) : ''} · ${esc(c.rarity || '?')}"
+         onclick="openModal(${i})">
+      <img src="${esc(c.img)}" alt="" loading="lazy" onerror="this.style.display='none'">
+      ${c.have ? `<span class="cnt">×${c.have}</span>` : ''}
+      <div class="cn"><span class="nm">${esc(c.title || c.code)}</span><span class="sg">${esc(c.song || (c.have ? 'ägs' : 'saknas'))}</span></div>
+      <i class="rbar" style="background:${rc(c.rarity)}"></i>
+    </div>`).join('') || '<div class="hint">inget här</div>';
+}
+
+/* ------------------------------ modal ------------------------------ */
+let modalIdx = -1;
+function openModal(idx) {
+  const c = visibleAlbumCards()[idx];
+  if (!c) return;
+  modalIdx = idx;
+  document.getElementById('m-img').src = c.imgBig || c.img;
+  document.getElementById('m-title').textContent = c.title || c.code;
+  document.getElementById('m-song').textContent = c.song || '';
+  document.getElementById('m-tags').innerHTML = [
+    c.rarity ? `<span class="tag" style="border-color:${rc(c.rarity)};color:${rc(c.rarity)}">${esc(c.rarity)}</span>` : '',
+    c.series ? `<span class="tag">serie ${esc(c.series)}</span>` : '',
+    c.num ? `<span class="tag">kort ${c.num}</span>` : '',
+    c.badges ? c.badges.split(',').map(b => `<span class="tag">${esc(b)}</span>`).join('') : '',
+    c.variant ? `<span class="tag">variant</span>` : '',
+  ].join('');
+  document.getElementById('m-own').innerHTML = c.have
+    ? `<span class="pill ok">ägs ×${c.have}</span>`
+    : `<span class="pill warn">saknas i samlingen</span>`;
+  document.getElementById('m-info').textContent = c.info || '';
+  document.getElementById('m-kv').innerHTML = (c.extra && Object.keys(c.extra).length)
+    ? Object.entries(c.extra).map(([k, v]) => `<dt>${esc(k.replace(/-/g, ' '))}</dt><dd>${esc(v)}</dd>`).join('')
+    : '';
+  document.getElementById('m-code').textContent = 'kortkod ' + c.code;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+const visibleAlbumCards = currentView;
+
+/* ------------------------------ sökning ------------------------------ */
+const onSearch = debounce(() => {
+  const q = document.getElementById('gal-search').value.trim().toLowerCase();
+  const sc = document.getElementById('searchcard');
+  const grid = document.getElementById('album-grid');
+  if (q.length < 2) { sc.style.display = 'none'; grid.style.display = ''; return; }
+  loadCards().then(() => {
+    sc.style.display = 'block';
+    grid.style.display = 'none';
+    document.getElementById('search-title').textContent = `Sökresultat · "${q}"`;
+    const rows = [];
+    for (const [code, c] of Object.entries(allCards.cards)) {
+      const al = allCards.albums.find(a => a.id === c.a);
+      const hay = `${c.t} ${c.s} ${al ? al.name : ''} ${code}`.toLowerCase();
+      if (!hay.includes(q)) continue;
+      rows.push({ code, c, al });
+      if (rows.length >= 200) break;
+    }
+    rows.sort((a, b) => (a.c.t || '').localeCompare(b.c.t || '', 'sv'));
+    document.getElementById('search-list').innerHTML = rows.length ? rows.map(r => lrow(r.code, r.c, r.al)).join('')
+      : '<div class="hint">inga kort matchar</div>';
+  });
+}, 220);
+
+function lrow(code, c, al) {
+  return `<div class="lrow" onclick="gotoCard('${esc(code)}', ${c.a})">
+    <span class="rdot" style="background:${rc(c.r)}"></span>
+    <img src="https://svt-hof.s3.eu-west-1.amazonaws.com/${esc(code)}_thumb_v${esc(c.v || 10)}.jpg" loading="lazy" alt="" onerror="this.style.visibility='hidden'">
+    <div class="t"><b>${esc(c.t || code)}</b><span>${esc(c.s || '')}${al ? ' · ' + esc(al.name) : ''}</span></div>
+    <span class="own ${c.h ? 'yes' : 'no'}">${c.h ? '×' + c.h : 'saknas'}</span>
+  </div>`;
+}
+
+async function gotoCard(code, albumId) {
+  document.querySelector('.tab[data-tab="gallery"]').click();
+  document.getElementById('gal-search').value = '';
+  onSearch();
+  await openAlbum(albumId);
+  const el = document.querySelector(`#ad-grid .ccard[data-code="${code}"]`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 3000);
+  }
+}
+
+/* ------------------------------ dubbletter / saknade ------------------------------ */
+async function toggleDups() {
+  const card = document.getElementById('dupscard');
+  if (card.style.display === 'block') { card.style.display = 'none'; return; }
+  await loadCards();
+  card.style.display = 'block';
+  dupRows = Object.entries(allCards.cards).filter(([, c]) => c.h > 1)
+    .sort((a, b) => b[1].h - a[1].h);
+  renderDups(false);
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderDups(all) {
+  const box = document.getElementById('dups-list');
+  if (!dupRows.length) { box.innerHTML = '<div class="hint">inga dubbletter</div>'; return; }
+  const rows = all ? dupRows : dupRows.slice(0, 250);
+  const more = dupRows.length - rows.length;
+  box.innerHTML = rows.map(([code, c]) => lrow(code, c, allCards.albums.find(a => a.id === c.a))).join('') +
+    (more > 0 ? `<div class="hint" style="text-align:center;padding:.4rem 0">visar ${rows.length} av ${dupRows.length} · <a href="#" onclick="renderDups(true);return false" style="color:var(--accent)">visa alla</a></div>` : '');
+}
+
+async function copyMissing() {
+  await loadCards();
+  const lines = [];
+  for (const [code, c] of Object.entries(allCards.cards)) {
+    if (c.h) continue;
+    const al = allCards.albums.find(a => a.id === c.a);
+    lines.push(`${al ? al.name : c.a} – ${c.t || code}${c.s ? ' – ' + c.s : ''} (${code})`);
+  }
+  lines.sort();
+  try {
+    await navigator.clipboard.writeText(lines.join('\n'));
+    toast(`${lines.length} saknade kort kopierade`, 'ok');
+  } catch (e) { toast('Kopiering misslyckades', 'err'); }
+}
+
+/* ------------------------------ profile & rank ------------------------------ */
+async function loadProfile() {
+  try {
+    const d = await fetchJSON('/api/amigo/profile');
+    if (d.userId) {
+      const avatar = document.getElementById('user-avatar');
+      const img = document.getElementById('avatar-img');
+      const name = d.displayName || d.username || 'Användare';
+      img.src = d.profile && d.profile.imageUrl || '';
+      avatar.title = name + (d.username ? ' · @' + d.username : '');
+      avatar.style.display = 'block';
+    }
+  } catch (e) { console.debug('profile load failed', e); }
+}
+
+async function loadRankdata() {
+  try {
+    const d = await fetchJSON('/api/rankdata');
+    if (d.err) { console.debug('rankdata err', d.err); return; }
+    const card = document.getElementById('rank-card');
+    card.style.display = 'block';
+
+    const ranks = (d.rewards || []).map(r => ({ level: r.r, trophy: r.trophy, rewards: r.rewards })).sort((a,b)=>a.level-b.level);
+    const daily = d.daily || [];
+    const scores = d.scores || {};
+    const initialDay = d.initialDay || {};
+
+    const dailiesBox = document.getElementById('rank-dailies');
+    const dailyLabels = { 'LOGIN': 'Inloggning', 'GET_CARD': 'Dagligt kort', 'FINISH_QUIZ': 'Quiz', 'FEED_LIKE': 'Gilla feed', 'SVT_PLAY': 'SVT Play' };
+    daily.forEach(function(key) {
+      const clean = key.replace(/[()?:]/g, '');
+      const pts = (scores[key] && scores[key].p) || (scores['(?: ' + clean + ' )'] && scores['(?: ' + clean + ' )'].p) || initialDay[clean] || 0;
+      const max = (scores[key] && scores[key].max) || (scores['(?: ' + clean + ' )'] && scores['(?: ' + clean + ' )'].max) || initialDay[clean] || 0;
+      const label = dailyLabels[clean] || clean;
+      const el = document.createElement('span');
+      el.className = 'pill';
+      el.style.borderColor = 'var(--ok)';
+      el.style.color = 'var(--ok)';
+      el.textContent = label + ' ' + (max > pts ? pts + '/' + max : pts) + 'p';
+      dailiesBox.appendChild(el);
+    });
+
+    const lvl1 = ranks.find(function(r){return r.level===1});
+    if (lvl1) {
+      const avatars = lvl1.rewards.filter(function(x){return x.t==='avatar'}).length;
+      const themes = lvl1.rewards.filter(function(x){return x.t==='theme'}).length;
+      document.getElementById('rank-reward').textContent =
+        'Nivå 1 belöning: ' + (avatars ? avatars + ' avatar' + (avatars>1?'er':'') : '') +
+        (themes ? (avatars ? ' + ' : '') + themes + ' tema' + (themes>1?'n':''): '');
+    }
+
+    document.getElementById('rank-level').textContent = 'Rank-system: ' + ranks.length + ' nivåer';
+    document.getElementById('rank-score').textContent = 'Dagliga uppdrag ger poäng till nästa nivå';
+    document.getElementById('rank-next').textContent = '';
+    document.getElementById('rank-bar').style.width = '0%';
+
+  } catch (e) { console.debug('rankdata load failed', e); }
+}
+
+/* ------------------------------ start ------------------------------ */
+buildChips();
+tickClock();
+setInterval(tickClock, 1000);
+refreshToken();
+refreshLog();
+refreshStats();
+refreshCollection();
+setInterval(() => { refreshToken(); refreshLog(); refreshStats(); }, 30000);
+  loadProfile();
+  loadRankdata();
+  setInterval(() => { loadProfile(); loadRankdata(); }, 3600000);
+</script>
+</body>
+</html>

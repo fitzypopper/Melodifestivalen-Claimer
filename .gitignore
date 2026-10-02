@@ -1,0 +1,30 @@
+# Data files (generated at runtime)
+data/token.json
+data/stats.json
+data/claimer.log
+data/albums.json
+data/rankdata.json
+data/amigo_profile.json
+data/info/*.json
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Docker
+docker-compose.override.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+/tmp/opencode/
+*.png
