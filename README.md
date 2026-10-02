@@ -26,14 +26,14 @@ Automatisk daglig kort-samling för **Melodifestivalen-appen** (SVT). Körs på 
 
 ```bash
 # 1. Klona & bygg
-git clone https://github.com/<din-användare>/melo-mitm-claimer.git
+git clone https://github.com/fitzypopper/Melodifestivalen-Claimer.git
 cd melo-mitm-claimer
 docker compose build
 
 # 2. Skapa data-volym & starta
 docker compose up -d
 
-# 3. Öppna http://<NAS-IP>:8765
+# 3. Öppna http://<IP>:8765
 #    → Fliken "Översikt" → fyll i din SVT-e-post → "Begär inloggningskod"
 #    → Kolla din e-post → ange 6-sifferskoden → "Skicka"
 #    → Färdigt! Containern claimar nu automatiskt varje hel timme.
@@ -144,7 +144,7 @@ docker exec melo-mitm-claimer python3 /app/claim_daily.py --token-file /data/tok
 
 ## Tack / källor
 
-- SVT / Melodifestivalen-appen för API:et
+- SVT / Melodifestivalen-appen för API:et, och ja, appen i sig
 - `mitmproxy` + Frida för API-upptäckt
 - `python3`, `Flask`, `Docker`
 
